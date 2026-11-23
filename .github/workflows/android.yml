@@ -7,6 +7,9 @@ on:
       - ".github/workflows/android.yml"
   workflow_dispatch:
 
+permissions:
+  contents: write   # нужно, чтобы выложить APK в Releases
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -21,8 +24,23 @@ jobs:
           java-version: "17"
       - uses: gradle/actions/setup-gradle@v4
       - name: Build debug APK
-        run: ./gradlew --no-daemon assembleDebug
+        run: |
+          ./gradlew --no-daemon assembleDebug
+          cp app/build/outputs/apk/debug/app-debug.apk "Alif-build-${{ github.run_number }}.apk"
       - uses: actions/upload-artifact@v4
         with:
           name: alif-debug-apk
-          path: AlifApp/app/build/outputs/apk/debug/*.apk
+          path: AlifApp/Alif-build-*.apk
+      # Выкладываем APK на страницу Releases — его удобно скачать прямо с телефона
+      - name: Publish to Releases
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: alif-build-${{ github.run_number }}
+          name: "Алиф — сборка ${{ github.run_number }}"
+          target_commitish: ${{ github.sha }}
+          prerelease: true
+          body: |
+            Тестовая сборка приложения «Алиф».
+            Скачайте файл .apk ниже и откройте его на телефоне, чтобы установить.
+            Коммит: ${{ github.sha }}
+          files: AlifApp/Alif-build-${{ github.run_number }}.apk
