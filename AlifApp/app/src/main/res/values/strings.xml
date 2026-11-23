@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Все тексты интерфейса на русском.
+  Чтобы добавить таджикский язык, скопируйте этот файл в res/values-tg/strings.xml
+  и переведите значения (имена name="..." не меняйте).
+-->
+<resources>
+    <string name="app_name">Алиф</string>
+
+    <!-- Нижняя навигация -->
+    <string name="tab_learn">Обучение</string>
+    <string name="tab_quran">Коран</string>
+    <string name="tab_favorites">Избранное</string>
+    <string name="tab_profile">Профиль</string>
+
+    <!-- Обучение -->
+    <string name="learn_title">Путь обучения</string>
+    <string name="learn_subtitle">Шаг за шагом от букв до чтения Корана</string>
+    <string name="learn_module_n">Модуль %1$d</string>
+    <string name="learn_lessons_count">Уроков: %1$d</string>
+    <string name="learn_locked">Откроется после предыдущего модуля</string>
+    <string name="learn_start">Начать</string>
+    <string name="learn_continue">Продолжить</string>
+    <string name="coming_next_stage">Этот раздел появится на следующем этапе</string>
+
+    <string name="module_alphabet">Алфавит</string>
+    <string name="module_alphabet_desc">28 букв: название, звук и написание</string>
+    <string name="module_forms">Формы букв</string>
+    <string name="module_forms_desc">Отдельная, начальная, срединная, конечная</string>
+    <string name="module_joining">Соединение букв</string>
+    <string name="module_joining_desc">Как буквы складываются в слово</string>
+    <string name="module_harakat">Огласовки</string>
+    <string name="module_harakat_desc">Фатха, кясра, дамма, сукун, шадда, танвин</string>
+    <string name="module_madd">Удлинения (мадд)</string>
+    <string name="module_madd_desc">Долгие гласные ا و ي</string>
+    <string name="module_special">Особые знаки</string>
+    <string name="module_special_desc">Та марбута, хамза, лям-алиф, солнечные буквы</string>
+    <string name="module_reading">Чтение слов</string>
+    <string name="module_reading_desc">От слогов к словам из Корана</string>
+    <string name="module_tajweed">Основы таджвида</string>
+    <string name="module_tajweed_desc">Правила красивого чтения на примерах</string>
+
+    <!-- Коран -->
+    <string name="quran_title">Коран</string>
+    <string name="quran_continue_reading">Продолжить чтение</string>
+    <string name="quran_search_hint">Поиск суры по названию или номеру</string>
+
+    <!-- Избранное -->
+    <string name="favorites_title">Избранное</string>
+    <string name="favorites_ayahs">Аяты</string>
+    <string name="favorites_surahs">Суры</string>
+    <string name="favorites_lessons">Буквы и слова</string>
+    <string name="favorites_empty">Пока пусто. Нажмите ♡ рядом с аятом, сурой или буквой, чтобы сохранить её здесь.</string>
+
+    <!-- Профиль -->
+    <string name="profile_title">Профиль</string>
+    <string name="profile_progress">Прогресс</string>
+    <string name="profile_streak">Дней подряд</string>
+    <string name="profile_lessons_done">Уроков пройдено</string>
+    <string name="profile_learned_percent">Изучено</string>
+    <string name="settings_title">Настройки</string>
+    <string name="settings_theme">Тема</string>
+    <string name="theme_system">Как в системе</string>
+    <string name="theme_light">Светлая</string>
+    <string name="theme_dark">Тёмная</string>
+    <string name="settings_arabic_size">Размер арабского текста</string>
+    <string name="settings_arabic_preview">بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</string>
+    <string name="settings_language">Язык интерфейса</string>
+    <string name="settings_language_soon">скоро</string>
+    <string name="settings_reciter">Чтец по умолчанию</string>
+    <string name="settings_haptics">Тактильный отклик</string>
+    <string name="settings_sounds">Звуки ответов</string>
+    <string name="settings_about">О приложении</string>
+
+    <!-- О приложении -->
+    <string name="about_title">О приложении</string>
+    <string name="about_version">Версия %1$s</string>
+    <string name="about_sources">Источники и лицензии</string>
+    <string name="about_text_source">Текст Корана: Tanzil Project (tanzil.net), Uthmani. Используется по лицензии Creative Commons Attribution 3.0; текст не изменяется.</string>
+    <string name="about_translation_source">Перевод смыслов на русский: Эльмир Кулиев (через tanzil.net, для некоммерческого использования).</string>
+    <string name="about_audio_source">Аудио чтецов: EveryAyah.com. Записи принадлежат их правообладателям и используются для некоммерческого изучения.</string>
+    <string name="about_fonts_source">Шрифты: Amiri и Amiri Quran (Khaled Hosny), Inter (Rasmus Andersson) — SIL Open Font License 1.1.</string>
+    <string name="about_letters_audio">Аудио букв и слогов: записи из папки assets/audio (замените на голос настоящего чтеца).</string>
+
+    <!-- Общие -->
+    <string name="back">Назад</string>
+    <string name="play_sound">Прослушать</string>
+    <string name="audio_missing">Аудио ещё не добавлено: %1$s</string>
+</resources>
