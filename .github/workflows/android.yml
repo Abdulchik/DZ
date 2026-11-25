@@ -33,6 +33,7 @@ jobs:
           path: AlifApp/Alif-build-*.apk
       # Выкладываем APK на страницу Releases — его удобно скачать прямо с телефона
       - name: Publish to Releases
+        continue-on-error: true   # сбой GitHub Releases не должен ломать сборку — APK есть и в Artifacts
         uses: softprops/action-gh-release@v2
         with:
           tag_name: alif-build-${{ github.run_number }}
