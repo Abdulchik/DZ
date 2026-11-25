@@ -9,8 +9,20 @@ data class AppSettings(
     val arabicFontSize: Float = DEFAULT_ARABIC_SIZE,
     val hapticsEnabled: Boolean = true,
     val soundsEnabled: Boolean = true,
-    /** Идентификатор чтеца (папка на everyayah.com), выбирается на этапе 6. */
+    /** Папка чтеца на everyayah.com */
     val defaultReciter: String = "Alafasy_128kbps",
+    // Экран чтения
+    val showTranslation: Boolean = true,
+    val showTransliteration: Boolean = false,
+    val playbackSpeed: Float = 1f,
+    // Где остановился в Коране (0 — ещё не читал)
+    val lastSurah: Int = 0,
+    val lastAyah: Int = 0,
+    // Цель и напоминание
+    val dailyGoal: Int = 2,
+    val reminderEnabled: Boolean = false,
+    val reminderHour: Int = 19,
+    val reminderMinute: Int = 0,
 ) {
     companion object {
         const val DEFAULT_ARABIC_SIZE = 30f

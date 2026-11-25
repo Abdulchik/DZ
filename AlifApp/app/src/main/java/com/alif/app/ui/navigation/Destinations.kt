@@ -19,6 +19,11 @@ object Routes {
     const val FAVORITES = "favorites"
     const val PROFILE = "profile"
     const val ABOUT = "about"
+    const val LESSON = "lesson/{id}"
+    const val READER = "reader/{surah}/{ayah}"
+
+    fun lesson(id: String) = "lesson/$id"
+    fun reader(surah: Int, ayah: Int) = "reader/$surah/$ayah"
 }
 
 /** Четыре вкладки нижней навигации. */

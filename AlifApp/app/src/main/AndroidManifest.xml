@@ -7,6 +7,9 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <!-- Тактильный отклик -->
     <uses-permission android:name="android.permission.VIBRATE" />
+    <!-- Ежедневное напоминание -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
         android:name=".AlifApplication"
@@ -28,6 +31,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <receiver android:name=".reminder.ReminderReceiver" android:exported="false" />
+        <receiver android:name=".reminder.BootReceiver" android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
 
         <!-- Запоминает выбранный язык интерфейса на Android 8–12 -->
         <service

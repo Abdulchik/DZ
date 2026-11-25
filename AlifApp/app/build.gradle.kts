@@ -24,7 +24,7 @@ android {
 
     androidResources {
         // Аудио не сжимаем — так оно быстрее открывается из assets
-        noCompress += listOf("mp3", "ogg", "wav")
+        noCompress += listOf("mp3", "ogg", "wav", "m4a")
     }
 
     buildTypes {

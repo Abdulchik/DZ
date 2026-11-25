@@ -60,7 +60,7 @@
     <string name="profile_learned_percent">Изучено</string>
     <string name="settings_title">Настройки</string>
     <string name="settings_theme">Тема</string>
-    <string name="theme_system">Как в системе</string>
+    <string name="theme_system">Авто</string>
     <string name="theme_light">Светлая</string>
     <string name="theme_dark">Тёмная</string>
     <string name="settings_arabic_size">Размер арабского текста</string>
@@ -76,9 +76,9 @@
     <string name="about_title">О приложении</string>
     <string name="about_version">Версия %1$s</string>
     <string name="about_sources">Источники и лицензии</string>
-    <string name="about_text_source">Текст Корана: Tanzil Project (tanzil.net), Uthmani. Используется по лицензии Creative Commons Attribution 3.0; текст не изменяется.</string>
-    <string name="about_translation_source">Перевод смыслов на русский: Эльмир Кулиев (через tanzil.net, для некоммерческого использования).</string>
-    <string name="about_audio_source">Аудио чтецов: EveryAyah.com. Записи принадлежат их правообладателям и используются для некоммерческого изучения.</string>
+    <string name="about_text_source">Текст Корана: Tanzil Quran Text (Uthmani, v1.1), © Tanzil Project, tanzil.net. Лицензия Creative Commons Attribution 3.0, текст не изменён. Обновления: tanzil.net/updates</string>
+    <string name="about_translation_source">Перевод смыслов на русский: Эльмир Кулиев (данные Tanzil, некоммерческое использование). Транслитерация упрощённая, создана на основе транслитерации Tanzil.</string>
+    <string name="about_audio_source">Аудио чтецов: EveryAyah.com (загружается по аятам и кэшируется в телефоне). Записи принадлежат правообладателям и используются для некоммерческого изучения.</string>
     <string name="about_fonts_source">Шрифты: Amiri и Amiri Quran (Khaled Hosny), Inter (Rasmus Andersson) — SIL Open Font License 1.1.</string>
     <string name="about_letters_audio">Аудио букв и слогов: записи из папки assets/audio (замените на голос настоящего чтеца).</string>
 

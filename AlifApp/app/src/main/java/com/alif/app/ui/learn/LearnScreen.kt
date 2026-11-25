@@ -20,10 +20,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.LocalFireDepartment
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Replay
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -38,141 +43,188 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.alif.app.R
+import com.alif.app.data.learn.Curriculum
 import com.alif.app.data.learn.LearningModule
-import com.alif.app.data.learn.LearningPath
+import com.alif.app.data.learn.Lesson
 import com.alif.app.ui.LocalSnackbar
+import com.alif.app.ui.appViewModelFactory
 import com.alif.app.ui.components.ArabicText
 import com.alif.app.ui.components.ScreenHeader
 import com.alif.app.ui.components.SectionCard
 import com.alif.app.ui.components.rememberHaptics
 import kotlinx.coroutines.launch
 
-/** Сдвиг кружков влево-вправо — получается «змейка», как в Duolingo. */
-private val zigzag = listOf(0.dp, 56.dp, 0.dp, (-56).dp)
+/** Сдвиг кружков влево-вправо — «змейка». */
+private val zigzag = listOf(0.dp, 48.dp, 72.dp, 48.dp, 0.dp, (-48).dp, (-72).dp, (-48).dp)
+
+private sealed interface PathRow {
+    data class Header(val module: LearningModule) : PathRow
+    data class Node(val lesson: Lesson, val indexInPath: Int) : PathRow
+}
 
 @Composable
-fun LearnScreen() {
-    // На этапе 1 открыт только первый модуль; прогресс подключается на этапе 2.
-    val unlockedCount = 1
+fun LearnScreen(
+    onOpenLesson: (String) -> Unit,
+    onOpenReview: () -> Unit,
+    vm: LearnViewModel = viewModel(factory = appViewModelFactory { LearnViewModel(it) }),
+) {
+    val state by vm.state.collectAsStateWithLifecycle()
     val snackbar = LocalSnackbar.current
     val scope = rememberCoroutineScope()
     val haptics = rememberHaptics()
     val lockedMsg = stringResource(R.string.learn_locked)
-    val soonMsg = stringResource(R.string.coming_next_stage)
 
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(bottom = 32.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        item {
-            ScreenHeader(
-                title = stringResource(R.string.learn_title),
-                subtitle = stringResource(R.string.learn_subtitle),
-                modifier = Modifier.fillMaxWidth(),
-            )
+    val rows = buildList {
+        var i = 0
+        Curriculum.modules.forEach { m ->
+            add(PathRow.Header(m))
+            m.lessons.forEach { add(PathRow.Node(it, i++)) }
         }
-        item { OverallProgressCard(done = 0, total = LearningPath.modules.sumOf { it.lessonCount }) }
-        item { Spacer(Modifier.height(24.dp)) }
-        itemsIndexed(LearningPath.modules, key = { _, m -> m.id }) { index, module ->
-            val unlocked = index < unlockedCount
-            ModuleNode(
-                module = module,
-                unlocked = unlocked,
-                isCurrent = index == unlockedCount - 1,
-                modifier = Modifier.offset(x = zigzag[index % zigzag.size]),
-                onClick = {
-                    haptics.tap()
-                    scope.launch { snackbar.showSnackbar(if (unlocked) soonMsg else lockedMsg) }
-                },
-            )
+    }
+
+    LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(bottom = 32.dp)) {
+        item { ScreenHeader(stringResource(R.string.learn_title), subtitle = stringResource(R.string.learn_subtitle)) }
+        item { TopCard(state, onOpenLesson, onOpenReview) }
+        items(rows, key = { r -> when (r) { is PathRow.Header -> "h_" + r.module.id; is PathRow.Node -> r.lesson.id } }) { row ->
+            when (row) {
+                is PathRow.Header -> ModuleHeader(row.module, state)
+                is PathRow.Node -> {
+                    val done = row.lesson.id in state.done
+                    val unlocked = vm.isUnlocked(row.lesson.id, state.done)
+                    Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                        LessonNode(
+                            lesson = row.lesson,
+                            done = done,
+                            unlocked = unlocked,
+                            current = unlocked && !done,
+                            modifier = Modifier.offset(x = zigzag[row.indexInPath % zigzag.size]),
+                            onClick = {
+                                haptics.tap()
+                                if (unlocked) onOpenLesson(row.lesson.id)
+                                else scope.launch { snackbar.showSnackbar(lockedMsg) }
+                            },
+                        )
+                    }
+                }
+            }
         }
     }
 }
 
 @Composable
-private fun OverallProgressCard(done: Int, total: Int) {
+private fun TopCard(state: LearnUiState, onOpenLesson: (String) -> Unit, onOpenReview: () -> Unit) {
+    val colors = MaterialTheme.colorScheme
     SectionCard(Modifier.fillMaxWidth().padding(horizontal = 20.dp)) {
-        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    stringResource(R.string.profile_lessons_done),
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.weight(1f),
-                )
-                Text("$done / $total", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
+                Icon(Icons.Filled.LocalFireDepartment, null, tint = colors.secondary)
+                Spacer(Modifier.width(6.dp))
+                Text("${state.streak} дн. подряд", style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
+                Text("Сегодня: ${state.todayDone}/${state.dailyGoal}", style = MaterialTheme.typography.titleMedium, color = colors.primary)
             }
             LinearProgressIndicator(
-                progress = { if (total == 0) 0f else done.toFloat() / total },
+                progress = { state.done.size.toFloat() / state.total },
                 modifier = Modifier.fillMaxWidth().height(10.dp),
-                color = MaterialTheme.colorScheme.secondary,
-                trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                color = colors.secondary,
+                trackColor = colors.surfaceVariant,
                 strokeCap = StrokeCap.Round,
                 gapSize = 0.dp,
                 drawStopIndicator = {},
             )
+            Text("Пройдено уроков: ${state.done.size} из ${state.total}", style = MaterialTheme.typography.bodyMedium, color = colors.onSurfaceVariant)
+            state.nextLesson?.let { next ->
+                Button(onClick = { onOpenLesson(next.id) }, modifier = Modifier.fillMaxWidth().height(56.dp)) {
+                    Icon(Icons.Filled.PlayArrow, null)
+                    Spacer(Modifier.width(8.dp))
+                    Text(
+                        (if (state.done.isEmpty()) "Начать: " else "Продолжить: ") + next.title,
+                        maxLines = 1, overflow = TextOverflow.Ellipsis,
+                    )
+                }
+            }
+            if (state.dueReviews > 0) {
+                Surface(onClick = onOpenReview, shape = MaterialTheme.shapes.large, color = colors.secondaryContainer, modifier = Modifier.fillMaxWidth()) {
+                    Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Filled.Replay, null, tint = colors.onSecondaryContainer)
+                        Spacer(Modifier.width(10.dp))
+                        Column(Modifier.weight(1f)) {
+                            Text("Повторение ошибок", style = MaterialTheme.typography.titleMedium)
+                            Text("Карточек к повторению: ${state.dueReviews}", style = MaterialTheme.typography.bodySmall)
+                        }
+                    }
+                }
+            }
         }
     }
 }
 
 @Composable
-private fun ModuleNode(
-    module: LearningModule,
+private fun ModuleHeader(m: LearningModule, state: LearnUiState) {
+    val doneCount = m.lessons.count { it.id in state.done }
+    val colors = MaterialTheme.colorScheme
+    Surface(
+        shape = MaterialTheme.shapes.large,
+        color = if (doneCount == m.lessons.size) colors.primary else colors.primaryContainer,
+        modifier = Modifier.fillMaxWidth().padding(start = 20.dp, end = 20.dp, top = 28.dp, bottom = 8.dp),
+    ) {
+        val onColor = if (doneCount == m.lessons.size) colors.onPrimary else colors.onPrimaryContainer
+        Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+            Column(Modifier.weight(1f)) {
+                Text(stringResource(R.string.learn_module_n, m.number) + " · $doneCount/${m.lessons.size}", style = MaterialTheme.typography.labelMedium, color = onColor.copy(alpha = 0.8f))
+                Text(stringResource(m.title), style = MaterialTheme.typography.titleLarge, color = onColor)
+                Text(stringResource(m.description), style = MaterialTheme.typography.bodySmall, color = onColor.copy(alpha = 0.8f))
+            }
+            ArabicText(m.symbol, fontSize = 26.sp, color = onColor)
+        }
+    }
+}
+
+@Composable
+private fun LessonNode(
+    lesson: Lesson,
+    done: Boolean,
     unlocked: Boolean,
-    isCurrent: Boolean,
+    current: Boolean,
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
 ) {
-    // Текущий модуль мягко «дышит», чтобы было понятно, куда нажимать
-    val pulse = rememberInfiniteTransition(label = "pulse")
-    val scale by pulse.animateFloat(
-        initialValue = 1f,
-        targetValue = if (isCurrent) 1.06f else 1f,
-        animationSpec = infiniteRepeatable(tween(900), RepeatMode.Reverse),
-        label = "scale",
-    )
     val colors = MaterialTheme.colorScheme
+    val scale = if (current) {
+        val pulse = rememberInfiniteTransition(label = "pulse")
+        pulse.animateFloat(1f, 1.07f, infiniteRepeatable(tween(900), RepeatMode.Reverse), label = "s").value
+    } else 1f
 
-    Column(
-        modifier = modifier.width(220.dp).padding(vertical = 10.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
+    Column(modifier.width(180.dp).padding(vertical = 8.dp), horizontalAlignment = Alignment.CenterHorizontally) {
         Surface(
             onClick = onClick,
             shape = CircleShape,
-            color = if (unlocked) colors.primary else colors.surfaceVariant,
-            border = if (isCurrent) BorderStroke(4.dp, colors.secondary) else null,
+            color = when { done -> colors.secondary; unlocked -> colors.primary; else -> colors.surfaceVariant },
+            border = if (current) BorderStroke(4.dp, colors.secondary.copy(alpha = 0.6f)) else null,
             shadowElevation = if (unlocked) 6.dp else 0.dp,
-            modifier = Modifier.size(92.dp).scale(scale),
+            modifier = Modifier.size(76.dp).scale(scale),
         ) {
             Box(contentAlignment = Alignment.Center) {
-                if (unlocked) {
-                    ArabicText(module.symbol, fontSize = 26.sp, color = colors.onPrimary, textAlign = TextAlign.Center)
-                } else {
-                    Icon(Icons.Filled.Lock, contentDescription = null, tint = colors.onSurfaceVariant)
+                when {
+                    done -> Icon(Icons.Filled.Check, null, tint = colors.onSecondary, modifier = Modifier.size(36.dp))
+                    unlocked -> Icon(Icons.Filled.PlayArrow, null, tint = colors.onPrimary, modifier = Modifier.size(36.dp))
+                    else -> Icon(Icons.Filled.Lock, null, tint = colors.onSurfaceVariant)
                 }
             }
         }
-        Spacer(Modifier.height(8.dp))
+        Spacer(Modifier.height(6.dp))
         Text(
-            stringResource(R.string.learn_module_n, module.number),
-            style = MaterialTheme.typography.labelMedium,
-            color = colors.secondary,
-        )
-        Text(
-            stringResource(module.title),
-            style = MaterialTheme.typography.titleMedium,
+            lesson.title,
+            style = MaterialTheme.typography.titleSmall,
             textAlign = TextAlign.Center,
             color = if (unlocked) colors.onBackground else colors.onSurfaceVariant,
-        )
-        Text(
-            stringResource(module.description),
-            style = MaterialTheme.typography.bodySmall,
-            textAlign = TextAlign.Center,
-            color = colors.onSurfaceVariant,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
         )
     }
 }

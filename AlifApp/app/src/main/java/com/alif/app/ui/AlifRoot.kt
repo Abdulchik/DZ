@@ -31,6 +31,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
+import com.alif.app.ui.learn.LessonScreen
+import com.alif.app.ui.learn.LessonViewModel
+import com.alif.app.ui.quran.ReaderScreen
 import com.alif.app.ui.components.rememberHaptics
 import com.alif.app.ui.favorites.FavoritesScreen
 import com.alif.app.ui.learn.LearnScreen
@@ -97,9 +102,44 @@ fun AlifRoot() {
                 enterTransition = { fadeIn(tween(220)) },
                 exitTransition = { fadeOut(tween(180)) },
             ) {
-                composable(Routes.LEARN) { LearnScreen() }
-                composable(Routes.QURAN) { QuranScreen() }
-                composable(Routes.FAVORITES) { FavoritesScreen() }
+                composable(Routes.LEARN) {
+                    LearnScreen(
+                        onOpenLesson = { navController.navigate(Routes.lesson(it)) },
+                        onOpenReview = { navController.navigate(Routes.lesson(LessonViewModel.REVIEW_ID)) },
+                    )
+                }
+                composable(Routes.QURAN) {
+                    QuranScreen(onOpenSurah = { s, a -> navController.navigate(Routes.reader(s, a)) })
+                }
+                composable(Routes.FAVORITES) {
+                    FavoritesScreen(onOpenAyah = { s, a -> navController.navigate(Routes.reader(s, a)) })
+                }
+                composable(
+                    Routes.LESSON,
+                    arguments = listOf(navArgument("id") { type = NavType.StringType }),
+                    enterTransition = { slideInVertically { it / 3 } + fadeIn() },
+                    popExitTransition = { slideOutVertically { it / 3 } + fadeOut() },
+                ) { entry ->
+                    LessonScreen(
+                        lessonId = entry.arguments?.getString("id").orEmpty(),
+                        onClose = { navController.popBackStack() },
+                    )
+                }
+                composable(
+                    Routes.READER,
+                    arguments = listOf(
+                        navArgument("surah") { type = NavType.IntType },
+                        navArgument("ayah") { type = NavType.IntType },
+                    ),
+                    enterTransition = { slideInHorizontally { it / 3 } + fadeIn() },
+                    popExitTransition = { slideOutHorizontally { it / 3 } + fadeOut() },
+                ) { entry ->
+                    ReaderScreen(
+                        surahNumber = entry.arguments?.getInt("surah") ?: 1,
+                        startAyah = entry.arguments?.getInt("ayah") ?: 0,
+                        onBack = { navController.popBackStack() },
+                    )
+                }
                 composable(Routes.PROFILE) {
                     ProfileScreen(onOpenAbout = { navController.navigate(Routes.ABOUT) })
                 }

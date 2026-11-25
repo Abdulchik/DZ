@@ -356,6 +356,6 @@ words/samad.mp3
 words/nas.mp3
 words/falaq.mp3
 words/kawthar.mp3
-ui/correct.mp3
-ui/wrong.mp3
-ui/complete.mp3
+ui/correct.wav
+ui/wrong.wav
+ui/complete.wav
