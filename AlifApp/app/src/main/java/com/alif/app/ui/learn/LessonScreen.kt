@@ -130,17 +130,7 @@ fun LessonScreen(lessonId: String, onClose: () -> Unit) {
                 Phase.LISTEN -> Button(onClick = { haptics.tap(); vm.finishListening() }, modifier = Modifier.fillMaxWidth().height(56.dp)) {
                     Text("К упражнениям")
                 }
-                Phase.PRACTICE, Phase.TEST -> {
-                    val ex = state.current
-                    AnimatedVisibility(
-                        visible = state.answer != null && ex != null,
-                        enter = slideInVertically { it } + fadeIn(),
-                        exit = slideOutVertically { it } + fadeOut(),
-                    ) {
-                        val a = state.answer
-                        if (a != null && ex != null) FeedbackPanel(ex, a, vm::next)
-                    }
-                }
+                Phase.PRACTICE, Phase.TEST -> FeedbackArea(state, vm::next)
                 Phase.RESULT -> Unit
             }
         }
@@ -183,5 +173,19 @@ private fun ResultView(state: LessonUiState, onClose: () -> Unit, onRetry: () ->
             }
         }
         OutlinedButton(onClick = onClose, modifier = Modifier.fillMaxWidth().height(56.dp)) { Text("К списку уроков") }
+    }
+}
+
+/** Отдельная функция без ColumnScope — чтобы вызвался обычный AnimatedVisibility. */
+@Composable
+private fun FeedbackArea(state: LessonUiState, onNext: () -> Unit) {
+    val ex = state.current
+    AnimatedVisibility(
+        visible = state.answer != null && ex != null,
+        enter = slideInVertically { it } + fadeIn(),
+        exit = slideOutVertically { it } + fadeOut(),
+    ) {
+        val a = state.answer
+        if (a != null && ex != null) FeedbackPanel(ex, a, onNext)
     }
 }
