@@ -4,4 +4,6 @@
     <color name="brand_gold">#C9A227</color>
     <color name="splash_background">#FBF7EE</color>
     <color name="ic_launcher_background">#0F4C3A</color>
+    <color name="calc_background">#2C2C30</color>
+    <color name="calc_window">#17171A</color>
 </resources>

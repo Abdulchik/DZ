@@ -18,6 +18,13 @@ import com.alif.app.ui.theme.isAppInDarkTheme
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Приложение открывается только из калькулятора (после ввода кода)
+        if (savedInstanceState == null && !intent.getBooleanExtra(EXTRA_UNLOCKED, false)) {
+            finish()
+            return
+        }
+        // В списке недавних приложений не показываем содержимое экрана
+        if (android.os.Build.VERSION.SDK_INT >= 33) setRecentsScreenshotEnabled(false)
         enableEdgeToEdge()
 
         val settingsRepository = (application as AlifApplication).container.settingsRepository
@@ -40,5 +47,15 @@ class MainActivity : AppCompatActivity() {
                 AlifRoot()
             }
         }
+    }
+
+    /** Ушли из приложения — закрываем его; при следующем открытии снова будет калькулятор. */
+    override fun onStop() {
+        super.onStop()
+        if (!isChangingConfigurations) finish()
+    }
+
+    companion object {
+        const val EXTRA_UNLOCKED = "unlocked"
     }
 }

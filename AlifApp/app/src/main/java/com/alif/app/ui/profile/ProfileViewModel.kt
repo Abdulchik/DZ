@@ -39,6 +39,7 @@ class ProfileViewModel(private val c: AppContainer) : ViewModel() {
     fun setHaptics(enabled: Boolean) = viewModelScope.launch { repo.setHaptics(enabled) }
     fun setSounds(enabled: Boolean) = viewModelScope.launch { repo.setSounds(enabled) }
     fun setReciter(folder: String) = viewModelScope.launch { repo.setDefaultReciter(folder) }
+    fun setUnlockCode(code: String) = viewModelScope.launch { repo.setUnlockCode(code) }
     fun setGoal(n: Int) = viewModelScope.launch { repo.setDailyGoal(n) }
 
     fun setReminder(enabled: Boolean, hour: Int, minute: Int) = viewModelScope.launch {

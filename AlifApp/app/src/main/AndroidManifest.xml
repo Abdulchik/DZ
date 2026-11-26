@@ -14,23 +14,30 @@
     <application
         android:name=".AlifApplication"
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
-        android:roundIcon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
+        android:icon="@mipmap/ic_calculator"
+        android:roundIcon="@mipmap/ic_calculator"
+        android:label="@string/launcher_name"
         android:localeConfig="@xml/locales_config"
         android:supportsRtl="true"
         android:theme="@style/Theme.Alif"
         tools:targetApi="33">
 
+        <!-- На экране телефона — калькулятор. Код + долгое нажатие «=» открывает приложение. -->
         <activity
-            android:name=".MainActivity"
+            android:name=".calc.CalculatorActivity"
             android:exported="true"
-            android:windowSoftInputMode="adjustResize">
+            android:theme="@style/Theme.Calc">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Само приложение: открывается только из калькулятора -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
 
         <receiver android:name=".reminder.ReminderReceiver" android:exported="false" />
         <receiver android:name=".reminder.BootReceiver" android:exported="false">

@@ -26,6 +26,7 @@ import androidx.compose.material.icons.filled.Flag
 import androidx.compose.material.icons.filled.Headphones
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.LocalFireDepartment
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.School
@@ -37,6 +38,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
@@ -59,6 +61,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -90,6 +94,7 @@ fun ProfileScreen(
     val haptics = rememberHaptics()
     var showTimePicker by remember { mutableStateOf(false) }
     var showReciters by remember { mutableStateOf(false) }
+    var showCode by remember { mutableStateOf(false) }
 
     // Разрешение на уведомления (Android 13+)
     val notifPermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
@@ -244,6 +249,14 @@ fun ProfileScreen(
             }
         }
 
+        SettingsCard(onClick = { showCode = true }) {
+            ListRow(
+                Icons.Filled.Lock, "Вход через калькулятор",
+                subtitle = "Наберите код в калькуляторе и зажмите «=». Код: ${"•".repeat(settings.unlockCode.length)}",
+                trailing = { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null) },
+            )
+        }
+
         SettingsCard(onClick = { haptics.tap(); onOpenAbout() }) {
             ListRow(Icons.Filled.Info, stringResource(R.string.settings_about), trailing = {
                 Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, null)
@@ -261,6 +274,31 @@ fun ProfileScreen(
                 TextButton(onClick = { enableReminder(tp.hour, tp.minute); showTimePicker = false }) { Text("Готово") }
             },
             dismissButton = { TextButton(onClick = { showTimePicker = false }) { Text("Отмена") } },
+        )
+    }
+
+    if (showCode) {
+        var code by remember { mutableStateOf("") }
+        val valid = code.length in 3..8 && code.all { it.isDigit() }
+        AlertDialog(
+            onDismissRequest = { showCode = false },
+            title = { Text("Новый код входа") },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("От 3 до 8 цифр. Чтобы открыть приложение: наберите код в калькуляторе и зажмите кнопку «=».")
+                    OutlinedTextField(
+                        value = code,
+                        onValueChange = { v -> code = v.filter { it.isDigit() }.take(8) },
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
+                        placeholder = { Text("например, 2580") },
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(enabled = valid, onClick = { viewModel.setUnlockCode(code); showCode = false }) { Text("Сохранить") }
+            },
+            dismissButton = { TextButton(onClick = { showCode = false }) { Text("Отмена") } },
         )
     }
 

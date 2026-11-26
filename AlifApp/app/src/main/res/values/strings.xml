@@ -6,6 +6,8 @@
 -->
 <resources>
     <string name="app_name">Алиф</string>
+    <!-- Название под иконкой и в настройках телефона (маскировка) -->
+    <string name="launcher_name">Калькулятор</string>
 
     <!-- Нижняя навигация -->
     <string name="tab_learn">Обучение</string>

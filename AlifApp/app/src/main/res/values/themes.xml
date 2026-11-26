@@ -6,4 +6,9 @@
         <item name="colorPrimary">@color/brand_green</item>
         <item name="colorAccent">@color/brand_gold</item>
     </style>
+
+    <!-- Тема калькулятора: тёмное окно, без следов зелёной темы -->
+    <style name="Theme.Calc" parent="Theme.AppCompat.NoActionBar">
+        <item name="android:windowBackground">@color/calc_window</item>
+    </style>
 </resources>

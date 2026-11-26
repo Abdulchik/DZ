@@ -24,9 +24,12 @@ data class AppSettings(
     val reminderEnabled: Boolean = false,
     val reminderHour: Int = 19,
     val reminderMinute: Int = 0,
+    /** Код, который нужно набрать в калькуляторе и зажать «=», чтобы открыть приложение. */
+    val unlockCode: String = DEFAULT_CODE,
 ) {
     companion object {
         const val DEFAULT_ARABIC_SIZE = 26f
+        const val DEFAULT_CODE = "786"
         const val MIN_ARABIC_SIZE = 20f
         const val MAX_ARABIC_SIZE = 48f
     }

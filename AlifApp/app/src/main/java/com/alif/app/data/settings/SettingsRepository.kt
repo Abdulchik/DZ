@@ -33,6 +33,7 @@ class SettingsRepository(private val context: Context) {
         val REMINDER = booleanPreferencesKey("reminder_enabled")
         val REMINDER_H = intPreferencesKey("reminder_hour")
         val REMINDER_M = intPreferencesKey("reminder_minute")
+        val UNLOCK_CODE = stringPreferencesKey("unlock_code")
     }
 
     val settings: Flow<AppSettings> = context.dataStore.data.map { p ->
@@ -54,6 +55,7 @@ class SettingsRepository(private val context: Context) {
             reminderEnabled = p[Keys.REMINDER] ?: d.reminderEnabled,
             reminderHour = p[Keys.REMINDER_H] ?: d.reminderHour,
             reminderMinute = p[Keys.REMINDER_M] ?: d.reminderMinute,
+            unlockCode = p[Keys.UNLOCK_CODE] ?: d.unlockCode,
         )
     }
 
@@ -72,6 +74,7 @@ class SettingsRepository(private val context: Context) {
         it[Keys.LAST_SURAH] = surah
         it[Keys.LAST_AYAH] = ayah
     }
+    suspend fun setUnlockCode(code: String) = context.dataStore.edit { it[Keys.UNLOCK_CODE] = code }
     suspend fun setDailyGoal(v: Int) = context.dataStore.edit { it[Keys.GOAL] = v }
     suspend fun setReminder(enabled: Boolean, hour: Int, minute: Int) = context.dataStore.edit {
         it[Keys.REMINDER] = enabled
