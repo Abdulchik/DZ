@@ -113,6 +113,7 @@ fun ReaderScreen(surahNumber: Int, startAyah: Int, onBack: () -> Unit) {
     val repeat by vm.repeatCount.collectAsStateWithLifecycle()
     val tajik by vm.tajik.collectAsStateWithLifecycle()
     val english by vm.english.collectAsStateWithLifecycle()
+    val translit by vm.translit.collectAsStateWithLifecycle()
 
     val context = LocalContext.current
     val snackbar = LocalSnackbar.current
@@ -203,6 +204,7 @@ fun ReaderScreen(surahNumber: Int, startAyah: Int, onBack: () -> Unit) {
                         ayah = ayah,
                         settings = settings,
                         tajik = tajik.getOrNull(idx),
+                        translit = translit.getOrNull(idx) ?: ayah.transliteration,
                         english = english.getOrNull(idx),
                         isPlaying = playingHere && player.ayah == ayah.number,
                         isFavorite = ayah.number in favorites,
@@ -272,6 +274,7 @@ fun ReaderScreen(surahNumber: Int, startAyah: Int, onBack: () -> Unit) {
             onDismiss = { showSettings = false },
             onArabic = { vm.setShowArabic(it) },
             onTajik = { vm.setShowTajik(it) },
+            onTranslitStyle = { vm.setTranslitStyle(it) },
             onEnglish = { vm.setShowEnglish(it) },
             onTranslation = { vm.setShowTranslation(it) },
             onTranslit = { vm.setShowTranslit(it) },
@@ -287,6 +290,7 @@ private fun AyahItem(
     settings: AppSettings,
     tajik: String?,
     english: String?,
+    translit: String,
     isPlaying: Boolean,
     isFavorite: Boolean,
     note: String?,
@@ -314,7 +318,7 @@ private fun AyahItem(
             if (settings.showTransliteration) {
                 // Чтение кириллицей — крупнее, если арабский скрыт
                 Text(
-                    ayah.transliteration,
+                    translit,
                     style = if (settings.showArabic) MaterialTheme.typography.titleMedium else MaterialTheme.typography.titleLarge,
                     color = colors.primary,
                 )
@@ -498,6 +502,7 @@ private fun ReaderSettingsSheet(
     settings: AppSettings,
     onDismiss: () -> Unit,
     onArabic: (Boolean) -> Unit,
+    onTranslitStyle: (String) -> Unit,
     onTajik: (Boolean) -> Unit,
     onEnglish: (Boolean) -> Unit,
     onTranslation: (Boolean) -> Unit,
@@ -516,7 +521,22 @@ private fun ReaderSettingsSheet(
             Text("Настройки чтения", style = MaterialTheme.typography.titleLarge)
             Text("Что показывать (можно убрать любое, но хотя бы одно остаётся):", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             ToggleRow("Арабский текст", settings.showArabic, enabledCount, onArabic)
-            ToggleRow("Чтение кириллицей", settings.showTransliteration, enabledCount, onTranslit)
+            ToggleRow("Транслитерация (как читать)", settings.showTransliteration, enabledCount, onTranslit)
+            if (settings.showTransliteration) {
+                listOf(
+                    "tj" to "Бисмиллāҳи-р-раҳмāни-р-раҳӣм — с удлинениями",
+                    "ru" to "Бисмилляхи-р-рахмани-р-рахим — простая русская",
+                    "en" to "Bismi Allahi alrrahmani alrraheemi — латиница",
+                ).forEach { (style, sample) ->
+                    Row(
+                        Modifier.fillMaxWidth().clickableRow { onTranslitStyle(style) },
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        RadioButton(selected = settings.translitStyle == style, onClick = { onTranslitStyle(style) })
+                        Text(sample, style = MaterialTheme.typography.bodyMedium)
+                    }
+                }
+            }
             ToggleRow("Русский перевод (Кулиев)", settings.showTranslation, enabledCount, onTranslation)
             ToggleRow("Тоҷикӣ — тарҷума", settings.showTajik, enabledCount, onTajik)
             ToggleRow("English (Saheeh International)", settings.showEnglish, enabledCount, onEnglish)

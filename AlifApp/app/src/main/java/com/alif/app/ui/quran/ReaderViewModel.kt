@@ -46,6 +46,9 @@ class ReaderViewModel(private val c: AppContainer, val surahNumber: Int) : ViewM
     /** Таджикский и английский переводы — загружаются, только когда включены. */
     val tajik = MutableStateFlow<List<String>>(emptyList())
     val english = MutableStateFlow<List<String>>(emptyList())
+    /** Транслитерация выбранного стиля (пусто — берём основную, в стиле таджикских изданий). */
+    val translit = MutableStateFlow<List<String>>(emptyList())
+    private var translitStyleLoaded = "tj"
 
     /** Сколько раз повторять каждый аят при прослушивании. */
     val repeatCount = MutableStateFlow(1)
@@ -59,6 +62,11 @@ class ReaderViewModel(private val c: AppContainer, val surahNumber: Int) : ViewM
             settings.collect { st ->
                 if (st.showTajik && tajik.value.isEmpty()) tajik.value = c.quranRepository.translation("tg", surahNumber)
                 if (st.showEnglish && english.value.isEmpty()) english.value = c.quranRepository.translation("en", surahNumber)
+                if (st.translitStyle != translitStyleLoaded) {
+                    translitStyleLoaded = st.translitStyle
+                    translit.value = if (st.translitStyle == "tj") emptyList()
+                    else c.quranRepository.transliteration(st.translitStyle, surahNumber)
+                }
             }
         }
     }
@@ -116,6 +124,7 @@ class ReaderViewModel(private val c: AppContainer, val surahNumber: Int) : ViewM
     }
 
     // ---------- Настройки отображения ----------
+    fun setTranslitStyle(v: String) = viewModelScope.launch { c.settingsRepository.setTranslitStyle(v) }
     fun setShowTajik(v: Boolean) = viewModelScope.launch { c.settingsRepository.setShowTajik(v) }
     fun setShowEnglish(v: Boolean) = viewModelScope.launch { c.settingsRepository.setShowEnglish(v) }
     fun setShowArabic(v: Boolean) = viewModelScope.launch { c.settingsRepository.setShowArabic(v) }

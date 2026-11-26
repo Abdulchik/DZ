@@ -79,13 +79,18 @@ class QuranRepository(private val context: Context) {
     private val translations = HashMap<String, Array<List<String>>>()
 
     /** Дополнительный перевод суры: lang = "tg" (таджикский) или "en" (английский). */
-    suspend fun translation(lang: String, surah: Int): List<String> = mutex.withLock {
-        translations.getOrPut(lang) { withContext(Dispatchers.IO) { loadTranslation(lang) } }
+    suspend fun translation(lang: String, surah: Int): List<String> = extra("tr_$lang", surah)
+
+    /** Другой стиль транслитерации: "ru" (простая русская) или "en" (латиница). */
+    suspend fun transliteration(style: String, surah: Int): List<String> = extra("tl_$style", surah)
+
+    private suspend fun extra(file: String, surah: Int): List<String> = mutex.withLock {
+        translations.getOrPut(file) { withContext(Dispatchers.IO) { loadTranslation(file) } }
     }[surah - 1]
 
-    private fun loadTranslation(lang: String): Array<List<String>> {
+    private fun loadTranslation(file: String): Array<List<String>> {
         val buckets = Array(114) { ArrayList<String>() }
-        context.assets.open("quran/tr_$lang.tsv").bufferedReader(Charsets.UTF_8).useLines { lines ->
+        context.assets.open("quran/$file.tsv").bufferedReader(Charsets.UTF_8).useLines { lines ->
             lines.forEach { line ->
                 if (line.isEmpty() || line[0] == '#') return@forEach
                 val c = line.split('\t', limit = 3)

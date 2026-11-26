@@ -248,3 +248,27 @@ if __name__ == "__main__":
         s, a, t = line.rstrip("\n").split("|", 2)
         if s in sys.argv[2:]:
             print(s, a, ayah_to_cyr(t))
+
+
+def to_simple_russian(t):
+    """Упрощённая русская транслитерация без особых знаков: Бисмилляхи-р-рахмани-р-рахим."""
+    import re
+    import unicodedata
+    import re as _re
+    s = _re.sub(r"(^|\s)Аллāҳ", r"\1Аллах", t)
+    s = s.replace("ллāҳ", "ллях").replace("ллаҳ", "ллях")
+    for a, b in (("ā", "а"), ("Ā", "А"), ("ō", "а"), ("Ō", "А"), ("ӣ", "и"), ("Ӣ", "И"), ("ӯ", "у"), ("Ӯ", "У"),
+                 ("ҳ", "х"), ("Ҳ", "Х"), ("қ", "к"), ("Қ", "К"), ("ъ", "‘")):
+        s = s.replace(a, b)
+    # убираем надстрочные/подстрочные знаки (с̇ → с, з̆ → з, т̣ → т …)
+    s = "".join(c for c in unicodedata.normalize("NFD", s) if not unicodedata.combining(c) or c in "̆̈")
+    s = unicodedata.normalize("NFC", s).replace("й", "й")
+    s = s.replace("з̆", "д").replace("З̆", "Д")  # ض в русской традиции — «д»: ад-даллин
+    # артикль «аль»: Ал-хамду → Аль-хамду, рабби-л-‘алямин → рабби-ль-‘алямин
+    s = re.sub(r"(^|\s)Ал-", r"\1Аль-", s)
+    s = re.sub(r"(^|\s)ал-", r"\1аль-", s)
+    s = re.sub(r"-л-", "-ль-", s)
+    s = re.sub(r"(^|[\s\-аиуэоя])йу", r"\1ю", s).replace("Йу", "Ю")
+    s = re.sub(r"(?<=[а-я])йу", "ю", s)
+    s = re.sub(r"(^|\s)([Кк])ул(?=\s|$)", r"\1\2уль", s)
+    return s

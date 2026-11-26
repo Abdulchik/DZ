@@ -23,7 +23,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from translit_cyr import ayah_to_cyr  # noqa: E402
+from translit_cyr import ayah_to_cyr, to_simple_russian  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "app" / "src" / "main" / "assets" / "quran"
@@ -167,6 +167,16 @@ def main():
                 "<TAB>транслитерация (упрощённая, по Tanzil)<TAB>перевод Э. Кулиева\n")
         for s, a, text in ayahs:
             f.write(f"{s}\t{a}\t{text}\t{ayah_to_cyr(without_bismillah(s, a, text))}\t{clean(kuliev[(s, a)])}\n")
+
+    # Ещё два стиля транслитерации: простая русская и латиница (Tanzil en.transliteration)
+    with (OUT / "tl_ru.tsv").open("w", encoding="utf-8") as f:
+        f.write("# Транслитерация: упрощённая русская (без знаков долготы)\n")
+        for s, a, text in ayahs:
+            f.write(f"{s}\t{a}\t{to_simple_russian(ayah_to_cyr(without_bismillah(s, a, text)))}\n")
+    with (OUT / "tl_en.tsv").open("w", encoding="utf-8") as f:
+        f.write("# Transliteration: Tanzil Project (en.transliteration)\n")
+        for s, a, _ in ayahs:
+            f.write(f"{s}\t{a}\t{clean(translit[(s, a)])}\n")
 
     for lang, path, title in (
         ("tg", tg_path, "Таджикский перевод: islamhouse.com (quranenc.com, tajik_arifi)"),

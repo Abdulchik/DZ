@@ -15,6 +15,8 @@ data class AppSettings(
     val showArabic: Boolean = true,
     val showTranslation: Boolean = true,
     val showTransliteration: Boolean = true,
+    /** Стиль транслитерации: "tj" — как в таджикских изданиях (ā ӣ ҳ қ), "ru" — простая русская, "en" — латиница. */
+    val translitStyle: String = "tj",
     val showTajik: Boolean = false,
     val showEnglish: Boolean = false,
     val playbackSpeed: Float = 1f,
