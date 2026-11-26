@@ -79,7 +79,8 @@
     <string name="about_version">Версия %1$s</string>
     <string name="about_sources">Источники и лицензии</string>
     <string name="about_text_source">Текст Корана: Tanzil Quran Text (Uthmani, v1.1), © Tanzil Project, tanzil.net. Лицензия Creative Commons Attribution 3.0, текст не изменён. Обновления: tanzil.net/updates</string>
-    <string name="about_translation_source">Перевод смыслов на русский: Эльмир Кулиев (данные Tanzil, некоммерческое использование). Транслитерация упрощённая, создана на основе транслитерации Tanzil.</string>
+    <string name="about_translation_source">Перевод смыслов на русский: Эльмир Кулиев (данные Tanzil, некоммерческое использование). </string>
+    <string name="about_more_translations">Таджикский перевод: islamhouse.com (quranenc.com, tajik_arifi). Английский перевод: Saheeh International (Tanzil). Транслитерация кириллицей создана автоматически из арабского текста — возможны неточности, сверяйтесь с аудио.</string>
     <string name="about_audio_source">Аудио чтецов: EveryAyah.com (загружается по аятам и кэшируется в телефоне). Записи принадлежат правообладателям и используются для некоммерческого изучения.</string>
     <string name="about_fonts_source">Шрифты: Amiri и Amiri Quran (Khaled Hosny), Inter (Rasmus Andersson) — SIL Open Font License 1.1.</string>
     <string name="about_letters_audio">Аудио букв и слогов: записи из папки assets/audio (замените на голос настоящего чтеца).</string>

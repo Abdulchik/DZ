@@ -63,6 +63,7 @@ fun AboutScreen(onBack: () -> Unit) {
                     listOf(
                         R.string.about_text_source,
                         R.string.about_translation_source,
+                        R.string.about_more_translations,
                         R.string.about_audio_source,
                         R.string.about_fonts_source,
                         R.string.about_letters_audio,

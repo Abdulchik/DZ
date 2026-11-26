@@ -111,6 +111,8 @@ fun ReaderScreen(surahNumber: Int, startAyah: Int, onBack: () -> Unit) {
     val isFavSurah by vm.isFavoriteSurah.collectAsStateWithLifecycle()
     val player by vm.player.collectAsStateWithLifecycle()
     val repeat by vm.repeatCount.collectAsStateWithLifecycle()
+    val tajik by vm.tajik.collectAsStateWithLifecycle()
+    val english by vm.english.collectAsStateWithLifecycle()
 
     val context = LocalContext.current
     val snackbar = LocalSnackbar.current
@@ -196,10 +198,12 @@ fun ReaderScreen(surahNumber: Int, startAyah: Int, onBack: () -> Unit) {
                         }
                     }
                 }
-                itemsIndexed(ayahs, key = { _, a -> a.number }) { _, ayah ->
+                itemsIndexed(ayahs, key = { _, a -> a.number }) { idx, ayah ->
                     AyahItem(
                         ayah = ayah,
                         settings = settings,
+                        tajik = tajik.getOrNull(idx),
+                        english = english.getOrNull(idx),
                         isPlaying = playingHere && player.ayah == ayah.number,
                         isFavorite = ayah.number in favorites,
                         note = notes[ayah.number],
@@ -267,6 +271,8 @@ fun ReaderScreen(surahNumber: Int, startAyah: Int, onBack: () -> Unit) {
             settings = settings,
             onDismiss = { showSettings = false },
             onArabic = { vm.setShowArabic(it) },
+            onTajik = { vm.setShowTajik(it) },
+            onEnglish = { vm.setShowEnglish(it) },
             onTranslation = { vm.setShowTranslation(it) },
             onTranslit = { vm.setShowTranslit(it) },
             onFontSize = { vm.setFontSize(it) },
@@ -279,6 +285,8 @@ fun ReaderScreen(surahNumber: Int, startAyah: Int, onBack: () -> Unit) {
 private fun AyahItem(
     ayah: Ayah,
     settings: AppSettings,
+    tajik: String?,
+    english: String?,
     isPlaying: Boolean,
     isFavorite: Boolean,
     note: String?,
@@ -311,8 +319,24 @@ private fun AyahItem(
                     color = colors.primary,
                 )
             }
-            if (settings.showTranslation) {
-                Text(ayah.translation, style = MaterialTheme.typography.bodyLarge, color = colors.onSurfaceVariant)
+            // Переводы: если включено несколько — подписываем язык
+            val translations = buildList {
+                if (settings.showTranslation) add("RU" to ayah.translation)
+                if (settings.showTajik && tajik != null) add("TJ" to tajik)
+                if (settings.showEnglish && english != null) add("EN" to english)
+            }
+            translations.forEach { (code, text) ->
+                Row {
+                    if (translations.size > 1) {
+                        Text(
+                            code,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = colors.secondary,
+                            modifier = Modifier.padding(top = 4.dp, end = 8.dp),
+                        )
+                    }
+                    Text(text, style = MaterialTheme.typography.bodyLarge, color = colors.onSurfaceVariant)
+                }
             }
             if (note != null) {
                 Surface(shape = MaterialTheme.shapes.medium, color = colors.surfaceContainer) {
@@ -474,12 +498,16 @@ private fun ReaderSettingsSheet(
     settings: AppSettings,
     onDismiss: () -> Unit,
     onArabic: (Boolean) -> Unit,
+    onTajik: (Boolean) -> Unit,
+    onEnglish: (Boolean) -> Unit,
     onTranslation: (Boolean) -> Unit,
     onTranslit: (Boolean) -> Unit,
     onFontSize: (Float) -> Unit,
     onReciter: (String) -> Unit,
 ) {
-    val enabledCount = listOf(settings.showArabic, settings.showTransliteration, settings.showTranslation).count { it }
+    val enabledCount = listOf(
+        settings.showArabic, settings.showTransliteration, settings.showTranslation, settings.showTajik, settings.showEnglish,
+    ).count { it }
     ModalBottomSheet(onDismissRequest = onDismiss) {
         Column(
             Modifier.verticalScroll(rememberScrollState()).padding(horizontal = 24.dp).padding(bottom = 32.dp),
@@ -489,7 +517,9 @@ private fun ReaderSettingsSheet(
             Text("Что показывать (можно убрать любое, но хотя бы одно остаётся):", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             ToggleRow("Арабский текст", settings.showArabic, enabledCount, onArabic)
             ToggleRow("Чтение кириллицей", settings.showTransliteration, enabledCount, onTranslit)
-            ToggleRow("Перевод на русский (Кулиев)", settings.showTranslation, enabledCount, onTranslation)
+            ToggleRow("Русский перевод (Кулиев)", settings.showTranslation, enabledCount, onTranslation)
+            ToggleRow("Тоҷикӣ — тарҷума", settings.showTajik, enabledCount, onTajik)
+            ToggleRow("English (Saheeh International)", settings.showEnglish, enabledCount, onEnglish)
             var size by remember(settings.arabicFontSize) { mutableFloatStateOf(settings.arabicFontSize) }
             Text("Размер арабского текста: ${size.toInt()}", style = MaterialTheme.typography.titleMedium)
             ArabicText("ٱلْحَمْدُ لِلَّهِ", quran = true, fontSize = size.sp, modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)

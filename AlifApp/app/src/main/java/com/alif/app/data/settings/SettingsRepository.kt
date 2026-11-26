@@ -26,6 +26,8 @@ class SettingsRepository(private val context: Context) {
         val SHOW_ARABIC = booleanPreferencesKey("show_arabic")
         val SHOW_TRANSLATION = booleanPreferencesKey("show_translation")
         val SHOW_TRANSLIT = booleanPreferencesKey("show_translit")
+        val SHOW_TG = booleanPreferencesKey("show_tajik")
+        val SHOW_EN = booleanPreferencesKey("show_english")
         val SPEED = floatPreferencesKey("playback_speed")
         val LAST_SURAH = intPreferencesKey("last_surah")
         val LAST_AYAH = intPreferencesKey("last_ayah")
@@ -48,6 +50,8 @@ class SettingsRepository(private val context: Context) {
             showArabic = p[Keys.SHOW_ARABIC] ?: d.showArabic,
             showTranslation = p[Keys.SHOW_TRANSLATION] ?: d.showTranslation,
             showTransliteration = p[Keys.SHOW_TRANSLIT] ?: d.showTransliteration,
+            showTajik = p[Keys.SHOW_TG] ?: d.showTajik,
+            showEnglish = p[Keys.SHOW_EN] ?: d.showEnglish,
             playbackSpeed = p[Keys.SPEED] ?: d.playbackSpeed,
             lastSurah = p[Keys.LAST_SURAH] ?: d.lastSurah,
             lastAyah = p[Keys.LAST_AYAH] ?: d.lastAyah,
@@ -66,6 +70,8 @@ class SettingsRepository(private val context: Context) {
     suspend fun setHaptics(enabled: Boolean) = context.dataStore.edit { it[Keys.HAPTICS] = enabled }
     suspend fun setSounds(enabled: Boolean) = context.dataStore.edit { it[Keys.SOUNDS] = enabled }
     suspend fun setDefaultReciter(id: String) = context.dataStore.edit { it[Keys.RECITER] = id }
+    suspend fun setShowTajik(v: Boolean) = context.dataStore.edit { it[Keys.SHOW_TG] = v }
+    suspend fun setShowEnglish(v: Boolean) = context.dataStore.edit { it[Keys.SHOW_EN] = v }
     suspend fun setShowArabic(v: Boolean) = context.dataStore.edit { it[Keys.SHOW_ARABIC] = v }
     suspend fun setShowTranslation(v: Boolean) = context.dataStore.edit { it[Keys.SHOW_TRANSLATION] = v }
     suspend fun setShowTransliteration(v: Boolean) = context.dataStore.edit { it[Keys.SHOW_TRANSLIT] = v }

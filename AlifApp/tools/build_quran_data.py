@@ -10,12 +10,20 @@
   4) info.json из fawazahmed0/quran-api — арабские названия сур и место ниспослания
 
 Запуск:
-  python3 tools/build_quran_data.py quran-uthmani.txt rus-elmirkuliev.json ara-quran-la.json info.json
+  python3 tools/build_quran_data.py quran-uthmani.txt rus-elmirkuliev.json ara-quran-la.json info.json \
+      tgk-wwwislamhouseco.json eng-ummmuhammad.json
+
+  5) Таджикский перевод (islamhouse.com / quranenc.com, tajik_arifi) — tgk-wwwislamhouseco.json
+  6) Английский перевод Saheeh International (Tanzil en.sahih) — eng-ummmuhammad.json
+Транслитерация кириллицей строится из арабского текста скриптом translit_cyr.py.
 """
 import json
 import re
 import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from translit_cyr import ayah_to_cyr  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "app" / "src" / "main" / "assets" / "quran"
@@ -121,8 +129,18 @@ def to_cyrillic(text: str) -> str:
     return " ".join(to_cyrillic_word(w) for w in text.split())
 
 
+def without_bismillah(s, a, text):
+    """Басмала в начале 1-го аята (кроме сур 1 и 9) — для транслитерации убираем, как в приложении."""
+    if a != 1 or s in (1, 9):
+        return text
+    w = text.split(" ")
+    if " ".join(w[:4]).replace("\u0651", "") == "بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ".replace("\u0651", ""):
+        return " ".join(w[4:])
+    return text
+
+
 def main():
-    uthmani_path, kuliev_path, translit_path, info_path = map(Path, sys.argv[1:5])
+    uthmani_path, kuliev_path, translit_path, info_path, tg_path, en_path = map(Path, sys.argv[1:7])
 
     lines = uthmani_path.read_text(encoding="utf-8").splitlines()
     ayahs = []
@@ -148,7 +166,17 @@ def main():
         f.write("# Колонки: сура<TAB>аят<TAB>арабский текст (Tanzil Uthmani, без изменений)"
                 "<TAB>транслитерация (упрощённая, по Tanzil)<TAB>перевод Э. Кулиева\n")
         for s, a, text in ayahs:
-            f.write(f"{s}\t{a}\t{text}\t{to_cyrillic(translit[(s, a)])}\t{clean(kuliev[(s, a)])}\n")
+            f.write(f"{s}\t{a}\t{text}\t{ayah_to_cyr(without_bismillah(s, a, text))}\t{clean(kuliev[(s, a)])}\n")
+
+    for lang, path, title in (
+        ("tg", tg_path, "Таджикский перевод: islamhouse.com (quranenc.com, tajik_arifi)"),
+        ("en", en_path, "English: Saheeh International (Tanzil, en.sahih)"),
+    ):
+        data = {(v["chapter"], v["verse"]): v["text"] for v in json.loads(path.read_text("utf-8"))["quran"]}
+        with (OUT / f"tr_{lang}.tsv").open("w", encoding="utf-8") as f:
+            f.write(f"# {title}\n# Колонки: сура<TAB>аят<TAB>перевод\n")
+            for s, a, _ in ayahs:
+                f.write(f"{s}\t{a}\t{clean(data[(s, a)])}\n")
 
     counts = {}
     for s, a, _ in ayahs:

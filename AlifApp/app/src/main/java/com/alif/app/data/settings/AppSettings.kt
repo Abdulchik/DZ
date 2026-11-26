@@ -15,6 +15,8 @@ data class AppSettings(
     val showArabic: Boolean = true,
     val showTranslation: Boolean = true,
     val showTransliteration: Boolean = true,
+    val showTajik: Boolean = false,
+    val showEnglish: Boolean = false,
     val playbackSpeed: Float = 1f,
     // Где остановился в Коране (0 — ещё не читал)
     val lastSurah: Int = 0,

@@ -76,6 +76,25 @@ class QuranRepository(private val context: Context) {
         val BISMILLAH_NO_SHADDA = "بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ".replace(SHADDA, "")
     }
 
+    private val translations = HashMap<String, Array<List<String>>>()
+
+    /** Дополнительный перевод суры: lang = "tg" (таджикский) или "en" (английский). */
+    suspend fun translation(lang: String, surah: Int): List<String> = mutex.withLock {
+        translations.getOrPut(lang) { withContext(Dispatchers.IO) { loadTranslation(lang) } }
+    }[surah - 1]
+
+    private fun loadTranslation(lang: String): Array<List<String>> {
+        val buckets = Array(114) { ArrayList<String>() }
+        context.assets.open("quran/tr_$lang.tsv").bufferedReader(Charsets.UTF_8).useLines { lines ->
+            lines.forEach { line ->
+                if (line.isEmpty() || line[0] == '#') return@forEach
+                val c = line.split('\t', limit = 3)
+                buckets[c[0].toInt() - 1].add(c.getOrElse(2) { "" })
+            }
+        }
+        return Array(114) { buckets[it] }
+    }
+
     /** Поиск сур по номеру, русскому или арабскому названию. */
     suspend fun search(query: String): List<Surah> {
         val q = query.trim().lowercase()
