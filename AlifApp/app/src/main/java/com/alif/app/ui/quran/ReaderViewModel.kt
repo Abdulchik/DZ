@@ -11,6 +11,7 @@ import com.alif.app.data.db.AyahNote
 import com.alif.app.data.db.FavoriteAyah
 import com.alif.app.data.db.FavoriteSurah
 import com.alif.app.data.quran.Ayah
+import com.alif.app.data.quran.Reciters
 import com.alif.app.data.quran.Surah
 import com.alif.app.data.settings.AppSettings
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -58,7 +59,7 @@ class ReaderViewModel(private val c: AppContainer, val surahNumber: Int) : ViewM
         val st = settings.value
         c.assetAudio.stop()
         c.quranPlayer.play(
-            reciter = st.defaultReciter,
+            reciter = Reciters.byFolder(st.defaultReciter).folder,
             surah = surahNumber,
             fromAyah = ayah,
             toAyah = s.ayahCount,
@@ -71,7 +72,7 @@ class ReaderViewModel(private val c: AppContainer, val surahNumber: Int) : ViewM
     fun repeatAyah(ayah: Int, times: Int) {
         val st = settings.value
         repeatCount.value = times
-        c.quranPlayer.play(st.defaultReciter, surahNumber, ayah, ayah, repeat = times, speed = st.playbackSpeed)
+        c.quranPlayer.play(Reciters.byFolder(st.defaultReciter).folder, surahNumber, ayah, ayah, repeat = times, speed = st.playbackSpeed)
     }
 
     fun togglePause() {
@@ -105,6 +106,7 @@ class ReaderViewModel(private val c: AppContainer, val surahNumber: Int) : ViewM
     }
 
     // ---------- Настройки отображения ----------
+    fun setShowArabic(v: Boolean) = viewModelScope.launch { c.settingsRepository.setShowArabic(v) }
     fun setShowTranslation(v: Boolean) = viewModelScope.launch { c.settingsRepository.setShowTranslation(v) }
     fun setShowTranslit(v: Boolean) = viewModelScope.launch { c.settingsRepository.setShowTransliteration(v) }
     fun setFontSize(v: Float) = viewModelScope.launch { c.settingsRepository.setArabicFontSize(v) }

@@ -25,14 +25,11 @@ data class Reciter(val folder: String, val name: String, val note: String = "")
 
 object Reciters {
     val all = listOf(
-        Reciter("Alafasy_128kbps", "Мишари Аль-Афаси"),
-        Reciter("Husary_Muallim_128kbps", "Махмуд Аль-Хусари", "обучающее чтение — медленно, с паузами"),
-        Reciter("Husary_128kbps", "Махмуд Аль-Хусари"),
-        Reciter("Abdul_Basit_Murattal_192kbps", "Абдуль-Басит Абдус-Самад"),
-        Reciter("Minshawy_Murattal_128kbps", "Мухаммад Аль-Миншави"),
-        Reciter("Abdurrahmaan_As-Sudais_192kbps", "Абдуррахман Ас-Судайс"),
-        Reciter("MaherAlMuaiqly128kbps", "Махер Аль-Муайкли"),
-        Reciter("Saood_ash-Shuraym_128kbps", "Сауд Аш-Шурайм"),
+        Reciter("Alafasy_128kbps", "Мишари Аль-Афаси", "Кувейт · мягкий, мелодичный голос"),
+        Reciter("Abdurrahmaan_As-Sudais_192kbps", "Абдуррахман Ас-Судайс", "имам Мекки · Аль-Харам"),
+        Reciter("MaherAlMuaiqly128kbps", "Махер Аль-Муайкли", "имам Мекки · спокойное чтение"),
+        Reciter("Abdul_Basit_Murattal_192kbps", "Абдуль-Басит Абдус-Самад", "Египет · классика"),
+        Reciter("Yasser_Ad-Dussary_128kbps", "Ясир Ад-Даусари", "имам Мекки · выразительное чтение"),
     )
 
     fun byFolder(folder: String): Reciter = all.firstOrNull { it.folder == folder } ?: all.first()

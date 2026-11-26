@@ -12,8 +12,9 @@ data class AppSettings(
     /** Папка чтеца на everyayah.com */
     val defaultReciter: String = "Alafasy_128kbps",
     // Экран чтения
+    val showArabic: Boolean = true,
     val showTranslation: Boolean = true,
-    val showTransliteration: Boolean = false,
+    val showTransliteration: Boolean = true,
     val playbackSpeed: Float = 1f,
     // Где остановился в Коране (0 — ещё не читал)
     val lastSurah: Int = 0,
@@ -25,7 +26,7 @@ data class AppSettings(
     val reminderMinute: Int = 0,
 ) {
     companion object {
-        const val DEFAULT_ARABIC_SIZE = 30f
+        const val DEFAULT_ARABIC_SIZE = 26f
         const val MIN_ARABIC_SIZE = 20f
         const val MAX_ARABIC_SIZE = 48f
     }

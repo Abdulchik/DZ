@@ -29,6 +29,8 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Notes
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.RecordVoiceOver
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Headphones
@@ -120,6 +122,7 @@ fun ReaderScreen(surahNumber: Int, startAyah: Int, onBack: () -> Unit) {
     var menuAyah by remember { mutableStateOf<Ayah?>(null) }
     var noteAyah by remember { mutableStateOf<Ayah?>(null) }
     var showSettings by rememberSaveable { mutableStateOf(false) }
+    var showReciters by rememberSaveable { mutableStateOf(false) }
 
     val playingHere = player.active && player.surah == surahNumber
 
@@ -220,6 +223,8 @@ fun ReaderScreen(surahNumber: Int, startAyah: Int, onBack: () -> Unit) {
             onSpeed = { vm.setSpeed(it) },
             onRepeat = vm::setRepeat,
             onStart = { haptics.tap(); vm.playFrom((listState.firstVisibleItemIndex).coerceIn(1, ayahs.size.coerceAtLeast(1))) },
+            reciterName = Reciters.byFolder(settings.defaultReciter).name,
+            onChooseReciter = { showReciters = true },
         )
     }
 
@@ -249,10 +254,19 @@ fun ReaderScreen(surahNumber: Int, startAyah: Int, onBack: () -> Unit) {
         )
     }
 
+    if (showReciters) {
+        ReciterDialog(
+            selected = Reciters.byFolder(settings.defaultReciter).folder,
+            onSelect = { vm.setReciter(it); showReciters = false },
+            onDismiss = { showReciters = false },
+        )
+    }
+
     if (showSettings) {
         ReaderSettingsSheet(
             settings = settings,
             onDismiss = { showSettings = false },
+            onArabic = { vm.setShowArabic(it) },
             onTranslation = { vm.setShowTranslation(it) },
             onTranslit = { vm.setShowTranslit(it) },
             onFontSize = { vm.setFontSize(it) },
@@ -280,15 +294,22 @@ private fun AyahItem(
                 if (note != null) Icon(Icons.AutoMirrored.Filled.Notes, "Есть заметка", tint = colors.secondary, modifier = Modifier.size(20.dp))
                 if (isFavorite) Icon(Icons.Filled.Favorite, "В избранном", tint = colors.secondary, modifier = Modifier.padding(start = 8.dp).size(20.dp))
             }
-            // Номер аята в конце — орнаментальный знак ۝ шрифта Amiri Quran
-            ArabicText(
-                ayah.arabic + " ۝" + arabicDigits(ayah.number),
-                quran = true,
-                modifier = Modifier.fillMaxWidth(),
-                color = colors.onSurface,
-            )
+            if (settings.showArabic) {
+                ArabicText(
+                    ayah.arabic,
+                    quran = true,
+                    fontSize = (settings.arabicFontSize * 0.9f).sp,
+                    modifier = Modifier.fillMaxWidth(),
+                    color = colors.onSurface,
+                )
+            }
             if (settings.showTransliteration) {
-                Text(ayah.transliteration, style = MaterialTheme.typography.bodyMedium, color = colors.primary)
+                // Чтение кириллицей — крупнее, если арабский скрыт
+                Text(
+                    ayah.transliteration,
+                    style = if (settings.showArabic) MaterialTheme.typography.titleMedium else MaterialTheme.typography.titleLarge,
+                    color = colors.primary,
+                )
             }
             if (settings.showTranslation) {
                 Text(ayah.translation, style = MaterialTheme.typography.bodyLarge, color = colors.onSurfaceVariant)
@@ -318,10 +339,13 @@ private fun AudioBar(
     onSpeed: (Float) -> Unit,
     onRepeat: (Int) -> Unit,
     onStart: () -> Unit,
+    reciterName: String,
+    onChooseReciter: () -> Unit,
 ) {
     val colors = MaterialTheme.colorScheme
     Surface(color = colors.surfaceContainerLow, tonalElevation = 3.dp, shadowElevation = 8.dp, modifier = Modifier.fillMaxWidth()) {
         Column(Modifier.padding(horizontal = 16.dp, vertical = 10.dp)) {
+            ReciterChip(reciterName, onChooseReciter)
             if (!active) {
                 Button(onClick = onStart, modifier = Modifier.fillMaxWidth().height(52.dp)) {
                     Icon(Icons.Filled.Headphones, null)
@@ -449,25 +473,23 @@ fun NoteDialog(initial: String, title: String, onDismiss: () -> Unit, onSave: (S
 private fun ReaderSettingsSheet(
     settings: AppSettings,
     onDismiss: () -> Unit,
+    onArabic: (Boolean) -> Unit,
     onTranslation: (Boolean) -> Unit,
     onTranslit: (Boolean) -> Unit,
     onFontSize: (Float) -> Unit,
     onReciter: (String) -> Unit,
 ) {
+    val enabledCount = listOf(settings.showArabic, settings.showTransliteration, settings.showTranslation).count { it }
     ModalBottomSheet(onDismissRequest = onDismiss) {
         Column(
             Modifier.verticalScroll(rememberScrollState()).padding(horizontal = 24.dp).padding(bottom = 32.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             Text("Настройки чтения", style = MaterialTheme.typography.titleLarge)
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("Перевод (Кулиев)", Modifier.weight(1f), style = MaterialTheme.typography.titleMedium)
-                Switch(settings.showTranslation, onTranslation)
-            }
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("Транслитерация", Modifier.weight(1f), style = MaterialTheme.typography.titleMedium)
-                Switch(settings.showTransliteration, onTranslit)
-            }
+            Text("Что показывать (можно убрать любое, но хотя бы одно остаётся):", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            ToggleRow("Арабский текст", settings.showArabic, enabledCount, onArabic)
+            ToggleRow("Чтение кириллицей", settings.showTransliteration, enabledCount, onTranslit)
+            ToggleRow("Перевод на русский (Кулиев)", settings.showTranslation, enabledCount, onTranslation)
             var size by remember(settings.arabicFontSize) { mutableFloatStateOf(settings.arabicFontSize) }
             Text("Размер арабского текста: ${size.toInt()}", style = MaterialTheme.typography.titleMedium)
             ArabicText("ٱلْحَمْدُ لِلَّهِ", quran = true, fontSize = size.sp, modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
@@ -498,4 +520,58 @@ private fun ReaderSettingsSheet(
             )
         }
     }
+}
+
+@Composable
+private fun ToggleRow(title: String, checked: Boolean, enabledCount: Int, onChange: (Boolean) -> Unit) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Text(title, Modifier.weight(1f), style = MaterialTheme.typography.titleMedium)
+        // Последний включённый переключатель выключить нельзя
+        Switch(checked, onChange, enabled = !(checked && enabledCount == 1))
+    }
+}
+
+@Composable
+private fun ReciterChip(name: String, onClick: () -> Unit) {
+    Surface(
+        onClick = onClick,
+        shape = MaterialTheme.shapes.large,
+        color = MaterialTheme.colorScheme.secondaryContainer,
+        modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+    ) {
+        Row(Modifier.padding(horizontal = 14.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
+            Icon(Icons.Filled.RecordVoiceOver, null, tint = MaterialTheme.colorScheme.onSecondaryContainer)
+            Spacer(Modifier.width(10.dp))
+            Column(Modifier.weight(1f)) {
+                Text("Чтец", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSecondaryContainer)
+                Text(name, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSecondaryContainer)
+            }
+            Icon(Icons.Filled.ExpandMore, "Выбрать чтеца", tint = MaterialTheme.colorScheme.onSecondaryContainer)
+        }
+    }
+}
+
+@Composable
+private fun ReciterDialog(selected: String, onSelect: (String) -> Unit, onDismiss: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Выберите чтеца") },
+        text = {
+            Column {
+                Reciters.all.forEach { r ->
+                    Row(
+                        Modifier.fillMaxWidth().clickable { onSelect(r.folder) }.padding(vertical = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        RadioButton(selected = selected == r.folder, onClick = { onSelect(r.folder) })
+                        Column {
+                            Text(r.name, style = MaterialTheme.typography.titleMedium)
+                            Text(r.note, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = { TextButton(onClick = onDismiss) { Text("Закрыть") } },
+    )
 }

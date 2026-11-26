@@ -23,6 +23,7 @@ class SettingsRepository(private val context: Context) {
         val HAPTICS = booleanPreferencesKey("haptics_enabled")
         val SOUNDS = booleanPreferencesKey("sounds_enabled")
         val RECITER = stringPreferencesKey("default_reciter")
+        val SHOW_ARABIC = booleanPreferencesKey("show_arabic")
         val SHOW_TRANSLATION = booleanPreferencesKey("show_translation")
         val SHOW_TRANSLIT = booleanPreferencesKey("show_translit")
         val SPEED = floatPreferencesKey("playback_speed")
@@ -43,6 +44,7 @@ class SettingsRepository(private val context: Context) {
             hapticsEnabled = p[Keys.HAPTICS] ?: d.hapticsEnabled,
             soundsEnabled = p[Keys.SOUNDS] ?: d.soundsEnabled,
             defaultReciter = p[Keys.RECITER] ?: d.defaultReciter,
+            showArabic = p[Keys.SHOW_ARABIC] ?: d.showArabic,
             showTranslation = p[Keys.SHOW_TRANSLATION] ?: d.showTranslation,
             showTransliteration = p[Keys.SHOW_TRANSLIT] ?: d.showTransliteration,
             playbackSpeed = p[Keys.SPEED] ?: d.playbackSpeed,
@@ -62,6 +64,7 @@ class SettingsRepository(private val context: Context) {
     suspend fun setHaptics(enabled: Boolean) = context.dataStore.edit { it[Keys.HAPTICS] = enabled }
     suspend fun setSounds(enabled: Boolean) = context.dataStore.edit { it[Keys.SOUNDS] = enabled }
     suspend fun setDefaultReciter(id: String) = context.dataStore.edit { it[Keys.RECITER] = id }
+    suspend fun setShowArabic(v: Boolean) = context.dataStore.edit { it[Keys.SHOW_ARABIC] = v }
     suspend fun setShowTranslation(v: Boolean) = context.dataStore.edit { it[Keys.SHOW_TRANSLATION] = v }
     suspend fun setShowTransliteration(v: Boolean) = context.dataStore.edit { it[Keys.SHOW_TRANSLIT] = v }
     suspend fun setPlaybackSpeed(v: Float) = context.dataStore.edit { it[Keys.SPEED] = v }

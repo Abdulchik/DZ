@@ -52,10 +52,28 @@ class QuranRepository(private val context: Context) {
                 if (line.isEmpty() || line[0] == '#') return@forEach
                 val c = line.split('\t')
                 val s = c[0].toInt()
-                buckets[s - 1].add(Ayah(s, c[1].toInt(), c[2], c[3], c[4]))
+                val a = c[1].toInt()
+                buckets[s - 1].add(Ayah(s, a, displayText(s, a, c[2]), c[3], c[4]))
             }
         }
         return Array(114) { buckets[it] }
+    }
+
+    /**
+     * В тексте Tanzil басмала входит в начало 1-го аята каждой суры (кроме 1-й и 9-й).
+     * Сам файл не меняем (условие лицензии), а при показе убираем её — она выводится отдельной шапкой суры.
+     */
+    private fun displayText(surah: Int, ayah: Int, text: String): String {
+        if (ayah != 1 || surah == 1 || surah == 9) return text
+        val words = text.split(' ')
+        if (words.size <= 4) return text
+        val first4 = words.take(4).joinToString(" ").replace(SHADDA, "")
+        return if (first4 == BISMILLAH_NO_SHADDA) words.drop(4).joinToString(" ") else text
+    }
+
+    private companion object {
+        const val SHADDA = "\u0651"
+        val BISMILLAH_NO_SHADDA = "بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ".replace(SHADDA, "")
     }
 
     /** Поиск сур по номеру, русскому или арабскому названию. */
