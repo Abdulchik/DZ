@@ -37,6 +37,12 @@ class SettingsRepository(private val context: Context) {
         val REMINDER_H = intPreferencesKey("reminder_hour")
         val REMINDER_M = intPreferencesKey("reminder_minute")
         val UNLOCK_CODE = stringPreferencesKey("unlock_code")
+        val PLACE_NAME = stringPreferencesKey("place_name")
+        val PLACE_LAT = stringPreferencesKey("place_lat")
+        val PLACE_LNG = stringPreferencesKey("place_lng")
+        val PLACE_ZONE = stringPreferencesKey("place_zone")
+        val CALC_METHOD = stringPreferencesKey("calc_method")
+        val HANAFI_ASR = booleanPreferencesKey("hanafi_asr")
     }
 
     val settings: Flow<AppSettings> = context.dataStore.data.map { p ->
@@ -62,6 +68,12 @@ class SettingsRepository(private val context: Context) {
             reminderHour = p[Keys.REMINDER_H] ?: d.reminderHour,
             reminderMinute = p[Keys.REMINDER_M] ?: d.reminderMinute,
             unlockCode = p[Keys.UNLOCK_CODE] ?: d.unlockCode,
+            placeName = p[Keys.PLACE_NAME] ?: d.placeName,
+            placeLat = p[Keys.PLACE_LAT]?.toDoubleOrNull() ?: d.placeLat,
+            placeLng = p[Keys.PLACE_LNG]?.toDoubleOrNull() ?: d.placeLng,
+            placeZone = p[Keys.PLACE_ZONE] ?: d.placeZone,
+            calcMethod = p[Keys.CALC_METHOD] ?: d.calcMethod,
+            hanafiAsr = p[Keys.HANAFI_ASR] ?: d.hanafiAsr,
         )
     }
 
@@ -83,6 +95,14 @@ class SettingsRepository(private val context: Context) {
         it[Keys.LAST_SURAH] = surah
         it[Keys.LAST_AYAH] = ayah
     }
+    suspend fun setPlace(name: String, lat: Double, lng: Double, zone: String) = context.dataStore.edit {
+        it[Keys.PLACE_NAME] = name
+        it[Keys.PLACE_LAT] = lat.toString()
+        it[Keys.PLACE_LNG] = lng.toString()
+        it[Keys.PLACE_ZONE] = zone
+    }
+    suspend fun setCalcMethod(m: String) = context.dataStore.edit { it[Keys.CALC_METHOD] = m }
+    suspend fun setHanafiAsr(v: Boolean) = context.dataStore.edit { it[Keys.HANAFI_ASR] = v }
     suspend fun setUnlockCode(code: String) = context.dataStore.edit { it[Keys.UNLOCK_CODE] = code }
     suspend fun setDailyGoal(v: Int) = context.dataStore.edit { it[Keys.GOAL] = v }
     suspend fun setReminder(enabled: Boolean, hour: Int, minute: Int) = context.dataStore.edit {

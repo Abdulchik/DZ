@@ -12,6 +12,7 @@
     <!-- Нижняя навигация -->
     <string name="tab_learn">Обучение</string>
     <string name="tab_quran">Коран</string>
+    <string name="tab_prayer">Намаз</string>
     <string name="tab_favorites">Избранное</string>
     <string name="tab_profile">Профиль</string>
 

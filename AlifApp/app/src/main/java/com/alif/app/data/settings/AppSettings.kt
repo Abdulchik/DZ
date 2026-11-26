@@ -30,6 +30,14 @@ data class AppSettings(
     val reminderMinute: Int = 0,
     /** Код, который нужно набрать в калькуляторе и зажать «=», чтобы открыть приложение. */
     val unlockCode: String = DEFAULT_CODE,
+    // Время намаза: место, метод расчёта
+    val placeName: String = "Душанбе",
+    val placeLat: Double = 38.5598,
+    val placeLng: Double = 68.7870,
+    /** Часовой пояс места; пусто — часовой пояс телефона (для GPS). */
+    val placeZone: String = "Asia/Dushanbe",
+    val calcMethod: String = "KARACHI",
+    val hanafiAsr: Boolean = true,
 ) {
     companion object {
         const val DEFAULT_ARABIC_SIZE = 26f

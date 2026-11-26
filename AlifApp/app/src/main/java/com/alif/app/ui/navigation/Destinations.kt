@@ -7,6 +7,8 @@ import androidx.compose.material.icons.automirrored.outlined.MenuBook
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.School
+import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.School
@@ -16,6 +18,9 @@ import com.alif.app.R
 object Routes {
     const val LEARN = "learn"
     const val QURAN = "quran"
+    const val PRAYER = "prayer"
+    const val QIBLA = "qibla"
+    const val GUIDE = "namaz_guide"
     const val FAVORITES = "favorites"
     const val PROFILE = "profile"
     const val ABOUT = "about"
@@ -35,6 +40,7 @@ enum class TopLevelTab(
 ) {
     LEARN(Routes.LEARN, R.string.tab_learn, Icons.Outlined.School, Icons.Filled.School),
     QURAN(Routes.QURAN, R.string.tab_quran, Icons.AutoMirrored.Outlined.MenuBook, Icons.AutoMirrored.Filled.MenuBook),
+    PRAYER(Routes.PRAYER, R.string.tab_prayer, Icons.Outlined.Schedule, Icons.Filled.Schedule),
     FAVORITES(Routes.FAVORITES, R.string.tab_favorites, Icons.Outlined.FavoriteBorder, Icons.Filled.Favorite),
     PROFILE(Routes.PROFILE, R.string.tab_profile, Icons.Outlined.Person, Icons.Filled.Person),
 }

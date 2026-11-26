@@ -36,6 +36,9 @@ import androidx.navigation.navArgument
 import com.alif.app.ui.learn.LessonScreen
 import com.alif.app.ui.learn.LessonViewModel
 import com.alif.app.ui.quran.ReaderScreen
+import com.alif.app.ui.prayer.NamazGuideScreen
+import com.alif.app.ui.prayer.PrayerScreen
+import com.alif.app.ui.prayer.QiblaScreen
 import com.alif.app.ui.components.rememberHaptics
 import com.alif.app.ui.favorites.FavoritesScreen
 import com.alif.app.ui.learn.LearnScreen
@@ -111,6 +114,22 @@ fun AlifRoot() {
                 composable(Routes.QURAN) {
                     QuranScreen(onOpenSurah = { s, a -> navController.navigate(Routes.reader(s, a)) })
                 }
+                composable(Routes.PRAYER) {
+                    PrayerScreen(
+                        onOpenQibla = { navController.navigate(Routes.QIBLA) },
+                        onOpenGuide = { navController.navigate(Routes.GUIDE) },
+                    )
+                }
+                composable(
+                    Routes.QIBLA,
+                    enterTransition = { slideInHorizontally { it / 3 } + fadeIn() },
+                    popExitTransition = { slideOutHorizontally { it / 3 } + fadeOut() },
+                ) { QiblaScreen(onBack = { navController.popBackStack() }) }
+                composable(
+                    Routes.GUIDE,
+                    enterTransition = { slideInHorizontally { it / 3 } + fadeIn() },
+                    popExitTransition = { slideOutHorizontally { it / 3 } + fadeOut() },
+                ) { NamazGuideScreen(onBack = { navController.popBackStack() }) }
                 composable(Routes.FAVORITES) {
                     FavoritesScreen(onOpenAyah = { s, a -> navController.navigate(Routes.reader(s, a)) })
                 }
